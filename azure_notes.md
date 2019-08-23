@@ -105,7 +105,8 @@
 1. How to handle Standard tier application is loading slowly.  
     * Configure Azure CDN to cache site images & content (static) stored in Azure blob storage
 
-
+### Deploy a sample node-app on azure
+* https://my-express-app-23aug2019.azurewebsites.net
 
 
 
@@ -113,3 +114,7 @@
 1. https://www.youtube.com/watch?v=_Pyityj08vU
 1. https://www.youtube.com/watch?v=PrZijM3PRDw
 1. https://www.youtube.com/watch?v=3gnLwSI4d9E
+1. https://docs.microsoft.com/en-us/azure/javascript/?view=azure-node-latest
+1. https://code.visualstudio.com/tutorials/app-service-extension/getting-started
+1. sample expressApp - https://code.visualstudio.com/docs/nodejs/nodejs-tutorial
+1. https://docs.microsoft.com/en-us/azure/iot-hub/quickstart-control-device-node?toc=/azure/javascript/toc.json&bc=/azure/javascript/breadcrumb/toc.json
