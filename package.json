@@ -1,0 +1,20 @@
+{
+  "name": "azure_hinweis",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kcodek/azure_hinweis.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kcodek/azure_hinweis/issues"
+  },
+  "homepage": "https://github.com/kcodek/azure_hinweis#readme"
+}

@@ -1,6 +1,255 @@
+### Azure Cli 
+
+➜  az group list                                                                  
+~~~json
+    [
+        {
+            "id": "/subscriptions/109645b2-cbd0-449b-a07d-f09169bcba66/resourceGroups/appsvc_linux_centr
+        alus",
+            "location": "centralus",
+            "managedBy": null,
+            "name": "appsvc_linux_centralus",
+            "properties": {
+            "provisioningState": "Succeeded"
+            },
+            "tags": null,
+            "type": null
+        },
+        {
+            "id": "/subscriptions/109645b2-cbd0-449b-a07d-f09169bcba66/resourceGroups/cloud-shell-storag
+        e-centralindia",
+            "location": "centralindia",
+            "managedBy": null,
+            "name": "cloud-shell-storage-centralindia",
+            "properties": {
+            "provisioningState": "Succeeded"
+            },
+            "tags": null,
+            "type": null
+        },
+        {
+            "id": "/subscriptions/109645b2-cbd0-449b-a07d-f09169bcba66/resourceGroups/IOT5g360ResourceGr
+        oup",
+            "location": "southindia",
+            "managedBy": null,
+            "name": "IOT5g360ResourceGroup",
+            "properties": {
+            "provisioningState": "Succeeded"
+            },
+            "tags": {
+            "Name": "Inseego"
+            },
+            "type": null
+        }
+    ]
+~~~
+
+➜  az group list --output table                                                   
+
+    Name                              Location      Status
+    --------------------------------  ------------  ---------
+    appsvc_linux_centralus            centralus     Succeeded
+    cloud-shell-storage-centralindia  centralindia  Succeeded
+    IOT5g360ResourceGroup             southindia    Succeeded
+
+
+➜  az group list --query "[?name == 'IOT5g360ResourceGroup']"                     
+
+~~~json
+    [
+        {
+            "id": "/subscriptions/109645b2-cbd0-449b-a07d-f09169bcba66/resourceGroups/IOT5g360ResourceGroup",
+            "location": "southindia",
+            "managedBy": null,
+            "name": "IOT5g360ResourceGroup",
+            "properties": {
+            "provisioningState": "Succeeded"
+            },
+            "tags": {
+            "Name": "Inseego"
+            },
+            "type": null
+        }
+    ]
+~~~
+
+➜  az appservice plan list                                                                                                                                                           
+~~~json
+    [
+        {
+            "freeOfferExpirationTime": null,
+            "hostingEnvironmentProfile": null,
+            "hyperV": false,
+            "id": "/subscriptions/109645b2-cbd0-449b-a07d-f09169bcba66/resourceGroups/appsvc_linux_centralus/providers/Microsoft.Web/serverfarms/appsvc_linux_centralus",
+            "isSpot": false,
+            "isXenon": false,
+            "kind": "linux",
+            "location": "Central US",
+            "maximumElasticWorkerCount": 1,
+            "maximumNumberOfWorkers": 1,
+            "name": "appsvc_linux_centralus",
+            "numberOfSites": 1,
+            "perSiteScaling": false,
+            "provisioningState": null,
+            "reserved": true,
+            "resourceGroup": "appsvc_linux_centralus",
+            "sku": {
+            "capabilities": null,
+            "capacity": 1,
+            "family": "F",
+            "locations": null,
+            "name": "F1",
+            "size": "F1",
+            "skuCapacity": null,
+            "tier": "Free"
+            },
+            "spotExpirationTime": null,
+            "status": "Ready",
+            "tags": null,
+            "targetWorkerCount": 0,
+            "targetWorkerSizeId": 0,
+            "type": "Microsoft.Web/serverfarms",
+            "workerTierName": null
+        }
+    ]
+~~~
+-----
+
+### ToDo Tasks
+
+* Complete deployment design and architecture 
+    - VPC creation, resources creation, server application clustering etc.
+    - Deployment design/architecture on Azure
+    - Azure Infrastructure creation
+    - Server application clustering"
+
+*  Samples & tutorials
+
+
+    - Deploy a sample node-app on azure 
+        * https://my-express-app-23aug2019.azurewebsites.net
+        * sample expressApp - https://code.visualstudio.com/docs/nodejs/nodejs-tutorial
+        * https://code.visualstudio.com/tutorials/app-service-extension/getting-started
+        * https://code.visualstudio.com/docs/azure/deployment
+
+    - install azure cli
+        * azure-cli on mac - https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-macos?view=azure-cli-latest
+        `$ az login`
+        ~~~json
+        
+        [
+            {
+                "cloudName": "AzureCloud",
+                "id": "109645b2-cbd0-449b-a07d-f09169bcba66",
+                "isDefault": true,
+                "name": "Free Trial",
+                "state": "Enabled",
+                "tenantId": "4984ed6c-2b33-4532-b600-4eceb5b87a74",
+                "user": {
+                "name": "kishored@ispace.com",
+                "type": "user"
+                }
+            }
+        ]
+        ~~~
+
+   
+    * Quickstart: Control a device connected to an IoT hub (Node.js)
+            - hostname: IOTHub5g360.azure-devices.net
+            - Subscription ID: 109645b2-cbd0-449b-a07d-f09169bcba66
+    
+        ~~~json
+        kishore@Azure:~$ az iot hub device-identity create --hub-name IOTHub5g360 --device-id MyNodeDevice
+            {
+            "authentication": {
+                "symmetricKey": {
+                "primaryKey": "zxL+C9uPwGf3Z0sWxh6d5+uxK1Cp1SOqoUpVDXS6U0k=",
+                "secondaryKey": "42yO/VAQXlueG/TEsBlICNa10Ep5lCHPZuLtki1mS8k="
+                },
+                "type": "sas",
+                "x509Thumbprint": {
+                "primaryThumbprint": null,
+                "secondaryThumbprint": null
+                }
+            },
+            "capabilities": {
+                "iotEdge": false
+            },
+            "cloudToDeviceMessageCount": 0,
+            "connectionState": "Disconnected",
+            "connectionStateUpdatedTime": "0001-01-01T00:00:00",
+            "deviceId": "MyNodeDevice",
+            "deviceScope": null,
+            "etag": "ODg1NTI5ODMz",
+            "generationId": "637025702479770574",
+            "lastActivityTime": "0001-01-01T00:00:00",
+            "status": "enabled",
+            "statusReason": null,
+            "statusUpdatedTime": "0001-01-01T00:00:00"
+            }
+        ~~~
+    `device connection string`: 
+    > kishore@Azure:~$ az iot hub device-identity show-connection-string --hub-name IOTHub5g360 --device-id MyNodeDevice --output table
+            ConnectionString
+            -------------------------------------------------------------------------------------------------------------------------
+            HostName=IOTHub5g360.azure-devices.net;DeviceId=MyNodeDevice;SharedAccessKey=zxL+C9uPwGf3Z0sWxh6d5+uxK1Cp1SOqoUpVDXS6U0k=
+        
+    `service connection string `
+    > kishore@Azure:~$ az iot hub show-connection-string --name IOTHub5g360 --policy-name service --output table
+            ConnectionString
+            -------------------------------------------------------------------------------------------------------------------------------
+            HostName=IOTHub5g360.azure-devices.net;SharedAccessKeyName=service;SharedAccessKey=uySS+yiYoGbLm/J8rQKtNoCnLM6xoW1IQ45Jeh/kFuo=
+
+    ~~~sh
+    @ ~/coding/azure_coding/azure-iot-samples-node/iot-hub/Quickstarts/simulated-device-2 | git:master ✘
+        ➜  node SimulatedDevice.js                                                                                                                                                                                
+        Sending message: {"temperature":30.056227874135665,"humidity":68.48138143747235}
+        message sent
+        Sending message: {"temperature":32.29788868011792,"humidity":70.16255415915099}
+        message sent
+        Sending message: {"temperature":24.835825010649607,"humidity":78.66246430261347}
+        message sent
+        Sending message: {"temperature":33.078712663899566,"humidity":64.07044705219538}
+        message sent
+        Sending message: {"temperature":30.691880763185765,"humidity":75.09512004276951}
+        message sent
+        Sending message: {"temperature":34.786337149873134,"humidity":78.08923326123627}
+        message sent
+        Sending message: {"temperature":20.34144180493631,"humidity":63.413750932181}
+        message sent
+        Sending message: {"temperature":27.32482365883846,"humidity":77.35100134805336}
+        message sent
+        Sending message: {"temperature":29.301871781760113,"humidity":64.5639044646356}
+        message sent
+        Sending message: {"temperature":25.636384694698684,"humidity":77.63236104210961}
+        message sent
+    
+   
+    @ ~/coding/azure_coding/azure-iot-samples-node/iot-hub/Quickstarts/back-end-application | git:master ✘
+        ➜  node BackEndApplication.js
+        
+            Response from SetTelemetryInterval on MyNodeDevice:
+            {
+            "status": 200,
+            "payload": "Telemetry interval set: 10"
+            }        
+    ~~~
+    - After you run the back-end application, you see a message in the console window running the simulated device, and the rate at which it sends messages changes
+        > Direct method payload received:
+            10
+            Response to method 'SetTelemetryInterval' sent successfully.
+            message sent
+
+1. https://docs.microsoft.com/en-us/azure/iot-hub/quickstart-control-device-node?toc=/azure/javascript/toc.json&bc=/azure/javascript/breadcrumb/toc.json    
+1. https://docs.microsoft.com/en-us/azure/iot-hub/about-iot-hub
+
+-----
 ### Questions
 1. Software as a Service(SaaS), Platform as a service (PaaS), Infrastructure as a service (IaaS)
-
+    - IaaS provides instant computing infrastructure that you can provision and manage over the Internet.
+    - PaaS provides ready-made development and deployment environments that you can use to deliver your own cloud services.
+    - SaaS delivers applications over the Internet as a web-based service.
+    
 1. Instance types offered by Azure
     - General Purpose - for PoCs, 
     - Compure Optimized - for Gaming, batch processes
@@ -105,16 +354,33 @@
 1. How to handle Standard tier application is loading slowly.  
     * Configure Azure CDN to cache site images & content (static) stored in Azure blob storage
 
-### Deploy a sample node-app on azure
-* https://my-express-app-23aug2019.azurewebsites.net
-
-
-
+-----
 ### References
 1. https://www.youtube.com/watch?v=_Pyityj08vU
 1. https://www.youtube.com/watch?v=PrZijM3PRDw
 1. https://www.youtube.com/watch?v=3gnLwSI4d9E
 1. https://docs.microsoft.com/en-us/azure/javascript/?view=azure-node-latest
-1. https://code.visualstudio.com/tutorials/app-service-extension/getting-started
-1. sample expressApp - https://code.visualstudio.com/docs/nodejs/nodejs-tutorial
-1. https://docs.microsoft.com/en-us/azure/iot-hub/quickstart-control-device-node?toc=/azure/javascript/toc.json&bc=/azure/javascript/breadcrumb/toc.json
+
+
+1. https://docs.microsoft.com/en-us/learn/modules/deploy-run-container-app-service/
+1. https://docs.microsoft.com/en-us/learn/modules/run-docker-with-azure-container-instances/
+1. https://docs.microsoft.com/en-us/learn/paths/administer-containers-in-azure/
+
+1. https://docs.microsoft.com/en-us/azure/media-services/previous/media-services-overview
+
+1. https://docs.microsoft.com/en-us/azure/architecture/guide/design-principles/index
+1. https://docs.microsoft.com/en-us/azure/architecture/guide/pillars
+1. https://docs.microsoft.com/en-us/learn/modules/pillars-of-a-great-azure-architecture/
+1. https://docs.microsoft.com/en-us/learn/modules/principles-cloud-computing/
+1. https://docs.microsoft.com/en-us/azure/architecture/patterns/
+1. Azure Cli - https://docs.microsoft.com/en-us/learn/modules/control-azure-services-with-cli/4-work-with-the-cli
+
+#### Microservices
+1. https://microservices.io/index.html
+1. API gateway 
+    - https://www.nginx.com/learn/api-gateway/
+    - https://microservices.io/patterns/apigateway.html
+    - Kong API - https://medium.com/@far3ns/kong-the-microservice-api-gateway-526c4ca0cfa6
+1. https://docs.microsoft.com/en-us/azure/architecture/microservices/design/
+
+------
