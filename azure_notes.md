@@ -1,140 +1,338 @@
-### Azure Cli 
+### Azure CLI 
+* Create a Resource Group
+    - $ ` az group create --name IOT5g360ResourceGroup --location southindia `
+    - $ ` az group list --query "[?name == 'IOT5g360ResourceGroup']" `
+        ~~~json
+        [
+            {
+                "id": "/subscriptions/109645b2-cbd0-449b-a07d-f09169bcba66/resourceGroups/IOT5g360ResourceGroup",
+                "location": "southindia",
+                "managedBy": null,
+                "name": "IOT5g360ResourceGroup",
+                "properties": {
+                "provisioningState": "Succeeded"
+                },
+                "tags": {
+                "Name": "Inseego"
+                },
+                "type": null
+            }
+        ]
+        ~~~
+    - $ ` az group list --output table `
+        >     Name                              Location      Status
+            --------------------------------  ------------  ---------
+            appsvc_linux_centralus            centralus     Succeeded
+            cloud-shell-storage-centralindia  centralindia  Succeeded
+            IOT5g360ResourceGroup             southindia    Succeeded
 
-➜  az group list                                                                  
-~~~json
-    [
+* Set Azure Subscription 
+    - $ ` az account set --subscription mySubscriptionId `
+        - `Subscription ID`: 109645b2-cbd0-449b-a07d-f09169bcba66
+
+* Create Storage account
+    - $ ` az storage account create --name storageaccountiot5g360 --kind StorageV2 --sku Standard_LRS -l southindia -g IOT5g360ResourceGroup `
+        
+* Create Azure Media Services(AMS)
+    - Create a Resource Group -  $ ` az group create --name IOT5g360ResourceGroup --location southindia `
+    - Create a Storage account - $ ` az storage account create --name storageaccountiot5g360 --kind StorageV2 --sku Standard_LRS -l southindia -g IOT5g360ResourceGroup `
+    - Create AMS Account - $ ` az ams account create --name amsiot5g360 -l southindia -g IOT5g360ResourceGroup --storage-account storageaccountiot5g360 `
+
+*  Acess Media Services
+    - $ ` az ams account sp create --account-name amsiot5g360 --resource-group IOT5g360ResourceGroup `
+        - ~~~json
+            { //  Retrying role assignment creation: 4/36
+                "AadClientId": "ced8d263-4e63-4875-99e7-53291b139683",
+                "AadEndpoint": "https://login.microsoftonline.com",
+                "AadSecret": "059d41c9-4c1d-4244-9ee1-536216640177",
+                "AadTenantId": "4984ed6c-2b33-4532-b600-4eceb5b87a74",
+                "AccountName": "amsiot5g360",
+                "ArmAadAudience": "https://management.core.windows.net/",
+                "ArmEndpoint": "https://management.azure.com/",
+                "Region": "South India",
+                "ResourceGroup": "IOT5g360ResourceGroup",
+                "SubscriptionId": "109645b2-cbd0-449b-a07d-f09169bcba66"
+            }
+          ~~~ 
+    - $ ` az ams account show -n amsiot5g360 -g IOT5g360ResourceGroup `          
+           -    ~~~json
+                {
+                    "id": "/subscriptions/109645b2-cbd0-449b-a07d-f09169bcba66/resourceGroups/IOT5g360ResourceGroup/providers/Microsoft.Media/mediaservices/amsiot5g360",
+                    "location": "South India",
+                    "mediaServiceId": "170fdf7b-3f08-49c1-bae9-0172b17c4753",
+                    "name": "amsiot5g360",
+                    "resourceGroup": "IOT5g360ResourceGroup",
+                    "storageAccounts": [
+                        {
+                        "id": "/subscriptions/109645b2-cbd0-449b-a07d-f09169bcba66/resourceGroups/IOT5g360ResourceGroup/providers/Microsoft.Storage/storageAccounts/storageaccountiot5g360",
+                        "resourceGroup": "IOT5g360ResourceGroup",
+                        "type": "Primary"
+                        }
+                    ],
+                    "tags": null,
+                    "type": "Microsoft.Media/mediaservices"
+                }
+                ~~~
+          
+* Start the default Streaming Endpoint 
+    * The Streaming Endpoint from which you want to stream content has to be in the Running state. 
+      The following CLI command starts your default Streaming Endpoint:
+      - $ ` az ams streaming-endpoint start -n default -a amsiot5g360 -g IOT5g360ResourceGroup `
+
+* Get Azure AD Token for Service Principal Authentication
+    - sent via postman request - ` POST https://login.microsoftonline.com/:tenantId/oauth2/token ` 
+        response:
+        ~~~json
         {
-            "id": "/subscriptions/109645b2-cbd0-449b-a07d-f09169bcba66/resourceGroups/appsvc_linux_centr
-        alus",
-            "location": "centralus",
-            "managedBy": null,
-            "name": "appsvc_linux_centralus",
-            "properties": {
-            "provisioningState": "Succeeded"
-            },
-            "tags": null,
-            "type": null
-        },
-        {
-            "id": "/subscriptions/109645b2-cbd0-449b-a07d-f09169bcba66/resourceGroups/cloud-shell-storag
-        e-centralindia",
-            "location": "centralindia",
-            "managedBy": null,
-            "name": "cloud-shell-storage-centralindia",
-            "properties": {
-            "provisioningState": "Succeeded"
-            },
-            "tags": null,
-            "type": null
-        },
-        {
-            "id": "/subscriptions/109645b2-cbd0-449b-a07d-f09169bcba66/resourceGroups/IOT5g360ResourceGr
-        oup",
-            "location": "southindia",
-            "managedBy": null,
-            "name": "IOT5g360ResourceGroup",
-            "properties": {
-            "provisioningState": "Succeeded"
-            },
-            "tags": {
-            "Name": "Inseego"
-            },
-            "type": null
+            "token_type": "Bearer",
+            "expires_in": "3599",
+            "ext_expires_in": "3599",
+            "expires_on": "1568015669",
+            "not_before": "1568011769",
+            "resource": "https://management.core.windows.net/",
+            "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6ImllX3FXQ1hoWHh0MXpJRXN1NGM3YWNRVkduNCIsImtpZCI6ImllX3FXQ1hoWHh0MXpJRXN1NGM3YWNRVkduNCJ9.eyJhdWQiOiJodHRwczovL21hbmFnZW1lbnQuY29yZS53aW5kb3dzLm5ldC8iLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC80OTg0ZWQ2Yy0yYjMzLTQ1MzItYjYwMC00ZWNlYjViODdhNzQvIiwiaWF0IjoxNTY4MDE3NjgwLCJuYmYiOjE1NjgwMTc2ODAsImV4cCI6MTU2ODAyMTU4MCwiYWlvIjoiNDJGZ1lIaHFPK212bXIvdnkxUFdyM3RGZTk0ekFnQT0iLCJhcHBpZCI6ImNlZDhkMjYzLTRlNjMtNDg3NS05OWU3LTUzMjkxYjEzOTY4MyIsImFwcGlkYWNyIjoiMSIsImlkcCI6Imh0dHBzOi8vc3RzLndpbmRvd3MubmV0LzQ5ODRlZDZjLTJiMzMtNDUzMi1iNjAwLTRlY2ViNWI4N2E3NC8iLCJvaWQiOiI2YjM1OGUxMy04ZGE1LTQ2OWItODI3YS0wNjkwZDY2ODYxYTAiLCJzdWIiOiI2YjM1OGUxMy04ZGE1LTQ2OWItODI3YS0wNjkwZDY2ODYxYTAiLCJ0aWQiOiI0OTg0ZWQ2Yy0yYjMzLTQ1MzItYjYwMC00ZWNlYjViODdhNzQiLCJ1dGkiOiI3ZGRBQVhwOXdrU0VRaWZJbjc3a0FRIiwidmVyIjoiMS4wIn0.n01yGZ4huS_m6nA0Vpt5n8fp5-Q7c7dX2WOXaeqbzWE5hMKx-YHRSr2Sdd5Ciq6IYmn9kJ09JP6Z67Hdw_XiKs_g4YmeeNyliuAOZiNSzs3Ee8Ztfb-RCLpC6-nL8uMpmhQQL8dV8HSogZI10tL7v4-H21YkRkFgbvdS30jiIaxRDbqul_yJgh4VcWbH6Uh2bAS8shfdma9ppbbj5cnyhZSi2V0HbpWNJyI87EqcyQGdXK_OFuW7cXaWhQdSbNcFXktwZ4-4F-kSqXOghkQ19k0ECzta2tcnXU-VAbIU1th9M8Um25D6sDh07Qn8vwniiTmDBgXWuVaQvobEAKf_og"
         }
-    ]
-~~~
+        ~~~
 
-➜  az group list --output table                                                   
-
-    Name                              Location      Status
-    --------------------------------  ------------  ---------
-    appsvc_linux_centralus            centralus     Succeeded
-    cloud-shell-storage-centralindia  centralindia  Succeeded
-    IOT5g360ResourceGroup             southindia    Succeeded
-
-
-➜  az group list --query "[?name == 'IOT5g360ResourceGroup']"                     
-
-~~~json
-    [
+* Create or update an Asset 
+    * sent via postman request - ` PUT https://management.azure.com/subscriptions/:subscriptionId/resourceGroups/:resourceGroupName/providers/Microsoft.Media/mediaServices/:accountName/assets/:assetName?api-version={{api-version}} `
+    with the following request body
+    ~~~json
         {
-            "id": "/subscriptions/109645b2-cbd0-449b-a07d-f09169bcba66/resourceGroups/IOT5g360ResourceGroup",
-            "location": "southindia",
-            "managedBy": null,
-            "name": "IOT5g360ResourceGroup",
+        "properties": {
+            "description": "Inseego Output Asset",
+            "alternateId": "(Optional) some GUID",
+            "storageAccountName": "storageaccountiot5g360",
+            "container": "inseego-output-asset-1"
+        }
+        }
+    ~~~
+
+    response:
+    ~~~json
+        {
+        "name": "testAsset1",
+        "id": "/subscriptions/109645b2-cbd0-449b-a07d-f09169bcba66/resourceGroups/IOT5g360ResourceGroup/providers/Microsoft.Media/mediaservices/amsiot5g360/assets/testAsset1",
+        "type": "Microsoft.Media/mediaservices/assets",
+        "properties": {
+            "assetId": "53d127f2-dd93-41e5-a707-218803c2252d",
+            "created": "2019-09-09T07:15:04.313Z",
+            "lastModified": "2019-09-09T07:15:04.313Z",
+            "alternateId": "(Optional) some GUID",
+            "description": "Inseego Output Asset",
+            "container": "inseego-output-asset-1",
+            "storageAccountName": "storageaccountiot5g360",
+            "storageEncryptionFormat": "None"
+        }
+        }
+    ~~~
+
+* List the Asset URLs
+    - List all the assets whose names start with the string 'Something'.
+        - $ ` az ams asset list -a amsiot5g360 -g IOT5g360ResourceGroup `
+                > --query [?starts_with(name,'Something')] `
+
+    -   Postman Query - `POST https://management.azure.com/subscriptions/:subscriptionId/resourceGroups/:resourceGroupName/providers/Microsoft.Media/mediaServices/:accountName/assets/:assetName/listContainerSas?api-version={{api-version}} `
+    request body
+    ~~~json
+        {
+            "permissions": "ReadWrite",
+            "expiryTime": "2018-01-01T10:00:00.007Z"
+        }
+    ~~~
+    Response:
+    ~~~json
+        {
+            "assetContainerSasUrls": [
+                "https://storageaccountiot5g360.blob.core.windows.net/inseego-output-asset-1?sv=2017-04-17&sr=c&sig=1VQQQNIle34AXIAbBmK6NPW0tlpdfrXPENY6VmmH59I%3D&se=2018-01-01T10:00:00Z&sp=rwl",
+                "https://storageaccountiot5g360.blob.core.windows.net/inseego-output-asset-1?sv=2017-04-17&sr=c&sig=NhAJFflltaU9K3YYNnDOjdjvVb7zEm8nKs5YVyiy4H8%3D&se=2018-01-01T10:00:00Z&sp=rwl"
+            ]
+       }
+    ~~~
+
+* Create or Update a transform 
+    - Postman request - `PUT https://management.azure.com/subscriptions/:subscriptionId/resourceGroups/:resourceGroupName/providers/Microsoft.Media/mediaServices/:accountName/transforms/:transformName?api-version={{api-version}}`
+        request body:
+        - ~~~json
+                {
+                    "properties": {
+                        "description": "Basic Transform using an Adaptive Streaming encoding preset from the libray of built-in Standard Encoder presets",
+                        "outputs": [
+                            {
+                                "onError": "StopProcessingJob",
+                                "relativePriority": "Normal",
+                                "preset": {
+                                    "@odata.type": "#Microsoft.Media.BuiltInStandardEncoderPreset",
+                                    "presetName": "AdaptiveStreaming"
+                                }
+                            }
+                        ]
+                    }
+                }
+        ~~~
+    response: 
+    ~~~json
+    {
+        "name": "testTransform1",
+        "id": "/subscriptions/109645b2-cbd0-449b-a07d-f09169bcba66/resourceGroups/IOT5g360ResourceGroup/providers/Microsoft.Media/mediaservices/amsiot5g360/transforms/testTransform1",
+        "type": "Microsoft.Media/mediaservices/transforms",
+        "properties": {
+            "created": "2019-09-09T08:39:54.0554775Z",
+            "description": "Basic Transform using an Adaptive Streaming encoding preset from the libray of built-in Standard Encoder presets",
+            "lastModified": "2019-09-09T08:39:54.0554775Z",
+            "outputs": [
+            {
+                "onError": "StopProcessingJob",
+                "relativePriority": "Normal",
+                "preset": {
+                "@odata.type": "#Microsoft.Media.BuiltInStandardEncoderPreset",
+                "presetName": "AdaptiveStreaming"
+                }
+            }
+            ]
+        }
+    }
+    ~~~
+
+
+
+
+* Create Job - Local Media File
+    - Postman request ` POST https://management.azure.com/subscriptions/:subscriptionId/resourceGroups/:resourceGroupName/providers/Microsoft.Media/mediaServices/:accountName/transforms/:transformName/jobs/:jobName?api-version={{api-version}} `
+    Request body
+    -    ~~~json    
+            {
+                "properties": {
+                    "input": {
+                    "@odata.type": "#Microsoft.Media.JobInputAsset",
+                    "assetName": "testAssetInput1"
+                    },
+                    "outputs": [
+                    {
+                        "@odata.type": "#Microsoft.Media.JobOutputAsset",
+                        "assetName": "testAsset1"
+                    }
+                    ],
+                    "priority" : "Normal",
+                    "correlationData": {
+                        "myKey1" :"my custom correlation metadata for this job"
+                    }
+                }
+            }
+        ~~~
+    Response
+     ~~~json
+            {
+            "name": "testJob1",
+            "id": "/subscriptions/109645b2-cbd0-449b-a07d-f09169bcba66/resourceGroups/IOT5g360ResourceGroup/providers/Microsoft.Media/mediaservices/amsiot5g360/transforms/testTransform1/jobs/testJob1",
+            "type": "Microsoft.Media/mediaservices/transforms/jobs",
             "properties": {
-            "provisioningState": "Succeeded"
-            },
-            "tags": {
-            "Name": "Inseego"
-            },
-            "type": null
+                "created": "2019-09-09T09:09:04.3132627Z",
+                "state": "Queued",
+                "input": {
+                "@odata.type": "#Microsoft.Media.JobInputAsset",
+                "files": [],
+                "assetName": "testAssetInput1"
+                },
+                "lastModified": "2019-09-09T09:09:04.3132627Z",
+                "outputs": [
+                {
+                    "@odata.type": "#Microsoft.Media.JobOutputAsset",
+                    "state": "Queued",
+                    "progress": 0,
+                    "label": "BuiltInStandardEncoderPreset_0",
+                    "assetName": "testAsset1"
+                }
+                ],
+                "priority": "Normal",
+                "correlationData": {
+                "myKey1": "my custom correlation metadata for this job"
+                }
+            }
         }
-    ]
-~~~
+    ~~~          
 
-➜  az appservice plan list                                                                                                                                                           
-~~~json
-    [
+
+
+* Create a Streaming Policy (clear)
+  - Postman query - `POST https://management.azure.com/subscriptions/:subscriptionId/resourceGroups/:resourceGroupName/providers/Microsoft.Media/mediaServices/:accountName/streamingPolicies/:streamingPolicyName?api-version={{api-version}}`  
+    ~~~json
         {
-            "freeOfferExpirationTime": null,
-            "hostingEnvironmentProfile": null,
-            "hyperV": false,
-            "id": "/subscriptions/109645b2-cbd0-449b-a07d-f09169bcba66/resourceGroups/appsvc_linux_centralus/providers/Microsoft.Web/serverfarms/appsvc_linux_centralus",
-            "isSpot": false,
-            "isXenon": false,
-            "kind": "linux",
-            "location": "Central US",
-            "maximumElasticWorkerCount": 1,
-            "maximumNumberOfWorkers": 1,
-            "name": "appsvc_linux_centralus",
-            "numberOfSites": 1,
-            "perSiteScaling": false,
-            "provisioningState": null,
-            "reserved": true,
-            "resourceGroup": "appsvc_linux_centralus",
-            "sku": {
-            "capabilities": null,
-            "capacity": 1,
-            "family": "F",
-            "locations": null,
-            "name": "F1",
-            "size": "F1",
-            "skuCapacity": null,
-            "tier": "Free"
-            },
-            "spotExpirationTime": null,
-            "status": "Ready",
-            "tags": null,
-            "targetWorkerCount": 0,
-            "targetWorkerSizeId": 0,
-            "type": "Microsoft.Web/serverfarms",
-            "workerTierName": null
+            "properties": {
+                "noEncryption": {
+                "enabledProtocols": {
+                    "download": true,
+                    "dash": true,
+                    "hls": true,
+                    "smoothStreaming": true
+                }
+                }
+            }
         }
-    ]
-~~~
------
+    ~~~
+    Response: 
+    ~~~json
+        {
+            "name": "testStreamingPolicy1",
+            "id": "/subscriptions/109645b2-cbd0-449b-a07d-f09169bcba66/resourceGroups/IOT5g360ResourceGroup/providers/Microsoft.Media/mediaservices/amsiot5g360/streamingPolicies/testStreamingPolicy1",
+            "type": "Microsoft.Media/mediaservices/streamingPolicies",
+            "properties": {
+                "created": "2019-09-09T09:17:21.6895424Z",
+                "noEncryption": {
+                "enabledProtocols": {
+                    "download": true,
+                    "dash": true,
+                    "hls": true,
+                    "smoothStreaming": true
+                    }
+                }
+            }
+        }
 
-### ToDo Tasks
-
-* Complete deployment design and architecture 
-    - VPC creation, resources creation, server application clustering etc.
-    - Deployment design/architecture on Azure
-    - Azure Infrastructure creation
-    - Server application clustering"
-
-*  Samples & tutorials
 
 
-    - Deploy a sample node-app on azure 
-        * https://my-express-app-23aug2019.azurewebsites.net
-        * sample expressApp - https://code.visualstudio.com/docs/nodejs/nodejs-tutorial
-        * https://code.visualstudio.com/tutorials/app-service-extension/getting-started
-        * https://code.visualstudio.com/docs/azure/deployment
-
-    - install azure cli
-        * azure-cli on mac - https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-macos?view=azure-cli-latest
-        `$ az login`
+* Miscellaneous
+    - $ ` az appservice plan list `
+        ~~~json
+            [
+                {
+                    "freeOfferExpirationTime": null,
+                    "hostingEnvironmentProfile": null,
+                    "hyperV": false,
+                    "id": "/subscriptions/109645b2-cbd0-449b-a07d-f09169bcba66/resourceGroups/appsvc_linux_centralus/providers/Microsoft.Web/serverfarms/appsvc_linux_centralus",
+                    "isSpot": false,
+                    "isXenon": false,
+                    "kind": "linux",
+                    "location": "Central US",
+                    "maximumElasticWorkerCount": 1,
+                    "maximumNumberOfWorkers": 1,
+                    "name": "appsvc_linux_centralus",
+                    "numberOfSites": 1,
+                    "perSiteScaling": false,
+                    "provisioningState": null,
+                    "reserved": true,
+                    "resourceGroup": "appsvc_linux_centralus",
+                    "sku": {
+                    "capabilities": null,
+                    "capacity": 1,
+                    "family": "F",
+                    "locations": null,
+                    "name": "F1",
+                    "size": "F1",
+                    "skuCapacity": null,
+                    "tier": "Free"
+                    },
+                    "spotExpirationTime": null,
+                    "status": "Ready",
+                    "tags": null,
+                    "targetWorkerCount": 0,
+                    "targetWorkerSizeId": 0,
+                    "type": "Microsoft.Web/serverfarms",
+                    "workerTierName": null
+                }
+            ]
+        ~~~
+    - $ ` az login`
         ~~~json
         
         [
@@ -152,8 +350,28 @@
             }
         ]
         ~~~
+    - $ 
 
-   
+
+----
+### ToDo Tasks
+
+* Complete deployment design and architecture 
+    - VPC creation, resources creation, server application clustering etc.
+    - Deployment design/architecture on Azure
+    - Azure Infrastructure creation
+    - Server application clustering"
+
+*  Samples & tutorials
+
+
+    - Deploy a sample node-app on azure 
+        * https://my-express-app-23aug2019.azurewebsites.net
+        * sample expressApp - https://code.visualstudio.com/docs/nodejs/nodejs-tutorial
+        * https://code.visualstudio.com/tutorials/app-service-extension/getting-started
+        * https://code.visualstudio.com/docs/azure/deployment
+
+    
     * Quickstart: Control a device connected to an IoT hub (Node.js)
             - hostname: IOTHub5g360.azure-devices.net
             - Subscription ID: 109645b2-cbd0-449b-a07d-f09169bcba66
@@ -355,7 +573,22 @@
     * Configure Azure CDN to cache site images & content (static) stored in Azure blob storage
 
 -----
-### References
+### Azure Media Services references
+
+1. https://docs.microsoft.com/en-us/azure/media-services/latest/media-rest-apis-with-postman
+1. https://docs.microsoft.com/en-us/azure/media-services/latest/media-services-apis-overview
+1. https://docs.microsoft.com/en-us/azure/media-services/latest/configure-connect-nodejs-howto
+1. https://github.com/Azure-Samples/media-services-v3-node-tutorials
+1. https://docs.microsoft.com/en-us/azure/media-services/previous/media-services-rest-how-to-use
+1. overview: https://docs.microsoft.com/en-us/azure/media-services/latest/media-services-overview
+
+### Azure CLI references
+1. Azure Cli - https://docs.microsoft.com/en-us/learn/modules/control-azure-services-with-cli/4-work-with-the-cli
+1. https://docs.microsoft.com/en-us/cli/azure/get-started-with-azure-cli?view=azure-cli-latest
+1. https://docs.microsoft.com/en-us/azure/media-services/latest/stream-files-cli-quickstart
+1. install azure-cli on mac - https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-macos?view=azure-cli-latest
+
+### Azure references
 1. https://www.youtube.com/watch?v=_Pyityj08vU
 1. https://www.youtube.com/watch?v=PrZijM3PRDw
 1. https://www.youtube.com/watch?v=3gnLwSI4d9E
@@ -366,14 +599,12 @@
 1. https://docs.microsoft.com/en-us/learn/modules/run-docker-with-azure-container-instances/
 1. https://docs.microsoft.com/en-us/learn/paths/administer-containers-in-azure/
 
-1. https://docs.microsoft.com/en-us/azure/media-services/previous/media-services-overview
-
 1. https://docs.microsoft.com/en-us/azure/architecture/guide/design-principles/index
 1. https://docs.microsoft.com/en-us/azure/architecture/guide/pillars
 1. https://docs.microsoft.com/en-us/learn/modules/pillars-of-a-great-azure-architecture/
 1. https://docs.microsoft.com/en-us/learn/modules/principles-cloud-computing/
 1. https://docs.microsoft.com/en-us/azure/architecture/patterns/
-1. Azure Cli - https://docs.microsoft.com/en-us/learn/modules/control-azure-services-with-cli/4-work-with-the-cli
+
 
 #### Microservices
 1. https://microservices.io/index.html
